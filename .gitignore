@@ -1,0 +1,54 @@
+# Ambientes virtuais
+venv/
+.env/
+.venv/
+ENV/
+env/
+
+# Arquivos temporários do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos temporários e de log
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Configurações do PyCharm
+.idea/
+
+# Arquivos de testes ou cobertura
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Arquivos de pacotes/distribuição
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Arquivos gerados por ferramentas de lint/type check
+.mypy_cache/
+.pytest_cache/
+.pyre/
+
+# Arquivos de banco de dados locais
+*.sqlite3
+*.db
+
+# Arquivos do sistema operacional
+*.~lock.*

@@ -1,0 +1,14 @@
+streamlit
+opencv-python
+numpy
+Pillow
+matplotlib
+ultralytics
+transformers
+torch
+uvicorn
+fastapi
+python-multipart
+dotenv
+google-cloud-vision
+openai
