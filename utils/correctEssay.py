@@ -79,15 +79,15 @@ class ENEMCorrector:
                 'role': "Especialista em Norma Culta da Língua Portuguesa",
                 'goal': "Avaliar domínio da língua portuguesa formal",
                 'backstory': "Professor de Língua Portuguesa com 20 anos de experiência",
-                'aspectos_avaliados': "Estrutura sintática e desvios gramaticais.",
+                'aspectos_avaliados': "Estrutura sintática, desvios gramaticais e registro formal da língua.",
                 'detalhamento_competencia': comp_1.prompt(),
                 'criteria': {
                     200: "Excelente domínio da escrita formal. Para atingir essa nota, o texto deve conter, no máximo: 2 desvios gramaticais e 1 falha de estrutura sintática OU 2 falhas de estrutura sintática sem desvios gramaticais OU 3 desvios gramaticais sem falha de estrutura sintática. Acima desses limites, a pontuação na competência será reduzida.",
                     160: "Bom domínio da escrita formal. Apresenta alguns desvios gramaticais e/ou falhas de estrutura sintática, totalizando entre 4 e 9 erros gerais. A clareza e a progressão das ideias são mantidas.",
-                    120: "Domínio mediano da escrita formal. Apresenta um número significativo de desvios gramaticais e/ou falhas de estrutura sintática, totalizando entre 10 e 15 erros gerais. A compreensão do texto pode ser ocasionalmente comprometida devido a esses desvios.",
-                    80: "Estrutura sintática deficitária ou muitos desvios gramaticais. Apresentar um ou outro: Muitos desvios gramaticais, mas poucas falhas de estrutura sintática OU Estrutura sintática deficitária, mas poucos desvios gramaticais.",
-                    40: "Estrutura sintática deficitária com muitos desvios gramaticais. Os dois problemas juntos: Muitos desvios gramaticais e estrutura sintática deficitária.",
-                    0: "Estrutura sintática inexistente (independente da quantidade de desvios gramaticais)."
+                    120: "Domínio mediano da escrita formal. Apresenta um número significativo de desvios gramaticais e/ou falhas de estrutura sintática, totalizando entre 10 e 15 erros gerais. A compreensão do texto pode ser ocasionalmente comprometida devido a esses desvios.", # Período único máx 1/2 dos parágrafos.
+                    80: "Mais de 15 erros gerais. Estrutura sintática deficitária OU muitos desvios gramaticais. Apresentar um ou outro: Muitos desvios gramaticais, mas poucas falhas de estrutura sintática OU Estrutura sintática deficitária, mas poucos desvios gramaticais.",
+                    40: "Mais de 15 erros gerais. Estrutura sintática deficitária COM muitos desvios gramaticais. Os dois problemas juntos: Muitos desvios gramaticais e estrutura sintática deficitária.",
+                    0: "Mais de 15 erros gerais. Estrutura sintática inexistente (independente da quantidade de desvios gramaticais)."
                 },
             },
             2: {
@@ -97,11 +97,11 @@ class ENEMCorrector:
                 'aspectos_avaliados': "Abordagem completa do tema; Uso de repertório sociocultural; 3 partes do texto: Introdução, Desenvolvimento e Conclusão; Tipologia textual: dissertativo-argumentativo",
                 'detalhamento_competencia': comp_2.prompt(tema=tema),
                 'criteria': {
-                    200: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão, nenhuma delas embrionária(parágrafo com até 2 linhas) E Repertório legitimado e pertinente ao tema COM uso produtivo(bem relacionado ao tema).",
-                    160: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão, nenhuma delas embrionária(parágrafo com até 2 linhas) E Repertório legitimado e pertinente ao tema, mas SEM uso produtivo(não relaciona bem com o tema).",
-                    120: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão, 1 delas pode ser embrionária(parágrafo com até 2 linhas). E Repertório não legitimado E/OU Repertório legitmado, mas não pertinente ao tema.", # E/OU Repertório baseado nos textos motivadores.
-                    80: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão, sendo 2 delas embrionárias(parágrafos com até 2 linhas) OU Conclusão finalizada por frase incompleta.", # Redações que apresentam muitos trechos de cópia não devem ultrapassar essa nota (1/3 das linhas de cópia).
-                    40: "Tangência ao tema OU texto composto por aglomerado caótico de palavras OU traços constantes de outros tipos textuais OU topicalização(textos com travessão no início dos parágrafos)."
+                    200: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão, Repertório legitimado e pertinente ao tema COM uso produtivo(bem relacionado ao tema).", # nenhuma delas embrionária(parágrafo com até 2 linhas) E
+                    160: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão,  E Repertório legitimado e pertinente ao tema, mas SEM uso produtivo(não relaciona bem com o tema).", # nenhuma delas embrionária(parágrafo com até 2 linhas)
+                    120: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão.  Repertório não legitimado E/OU Repertório legitmado, mas não pertinente ao tema. Redações com corpo do texto composto por até 8 linhas, em que não é possível reconhecer as 3 partes, não devem ultrapassar essa nota.", # E/OU Repertório baseado nos textos motivadores. Contém 1 parágrafo embrionário(parágrafo com até 2 linhas) E
+                    80: "Abordagem completa do tema. 3 partes do texto presentes: Introdução, Desenvolvimento e Conclusão.  Conclusão finalizada por frase incompleta.", # Redações que apresentam muitos trechos de cópia não devem ultrapassar essa nota (1/3 das linhas de cópia). Contém 2 parágrafos embrionários(parágrafos com até 2 linhas) OU
+                    40: "Tangência ao tema OU texto composto por aglomerado caótico de palavras OU traços constantes de outros tipos textuais, exemplo: topicalização(textos com travessão no início dos parágrafos)."
                 },
             },
             3: {
@@ -128,9 +128,9 @@ class ENEMCorrector:
                 'detalhamento_competencia': comp_4.prompt(),
                 'criteria': {
                     200: "Resenha expressiva de elementos coesivos intraparágrafos e interparágrafos E raras ou ausentes repetições E sem inadequação. Presença de, no mínimo, 2 conectivos interparágrafos ao longo de todo o texto e, no mínimo, 2 conectivos intraparágrafos em cada parágrafo.",
-                    160: "Presença constante de elementos coesivos intraparágrafos e interparágrafos E/OU poucas repetições E/OU poucas inadequações.", # Perguntar sobre qt de conectivos nesse nível e nos outros (se tiver).
+                    160: "Presença constante de elementos coesivos intraparágrafos e interparágrafos E/OU poucas repetições E/OU poucas inadequações.", # Pelo menos 1 inter e 2 intraparágrafo por parágrafo.
                     120: "Presença regular de elementos coesivos intraparágrafos e/ou interparágrafos E/OU algumas repetições E/OU algumas inadequações.",
-                    80: "Presença pontual de elementos coesivos intraparágrafos e/ou interparágrafos E/OU muitas repetições E/OU muitas inadequações.", # Textos em forma de monobloco não devem ultrapassar essa nota.
+                    80: "Presença pontual de elementos coesivos intraparágrafos e/ou interparágrafos E/OU muitas repetições E/OU muitas inadequações.",
                     40: "Presença rara de elementos coesivos intraparágrafos e/ou interparágrafos E/OU excessivas repetições E/OU excessivas inadequações.",
                     0: "Ausência de articulação: palavras e/ou períodos desconexos ao longo de todo o texto."
                 },
@@ -147,7 +147,7 @@ class ENEMCorrector:
                     120: "3 elementos válidos.",
                     80: "2 elementos válidos.",
                     40: "Tangenciamento do tema OU apenas 1 elemento válido.",
-                    0: "Ausência de proposta OU proposta de intervenção que desrespeita direitos humanos OU proposta de intervenção não relacionada ao assunto do tema."
+                    0: "Ausência de proposta OU Ausência dos cinco elementos válidos OU proposta de intervenção que desrespeita direitos humanos OU proposta de intervenção não relacionada ao assunto do tema."
                 },
             }
         }
