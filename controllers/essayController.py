@@ -5,6 +5,7 @@ import sys
 import os
 import random
 import numpy as np
+import re
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from utils.correctEssay import ENEMCorrector
@@ -35,9 +36,6 @@ async def read_essay(image: UploadFile = File(...)):
     #    "essay_text": text['texto_completo']
     #}
 
-async def improve_essay(essay_text: str):
-    pass
-
 async def correct_essay(data: EssayRequest):
     corrector.tema = data.essay_theme
     response = corrector.correct_redacao(data.essay_text)
@@ -57,8 +55,27 @@ async def correct_essay(data: EssayRequest):
             comentario.append("Sugestões: " + ", ".join(comp['sugestoes']))
         comentarios[f'competencia_{i}'] = " | ".join(comentario)
     nota_final = response['pontuacao_total']
+    feedback_geral = format_feedback_text(response['feedback_geral'])
+    print(feedback_geral)
     return {
         "nota_final": nota_final,
         "competencias": competencias,
-        "comentarios": comentarios
+        "comentarios": comentarios,
+        "feedback_geral": feedback_geral
     }
+
+
+def format_feedback_text(raw_text: str) -> str:
+    # 1. Negrito: **texto** → <strong>texto</strong>
+    formatted = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", raw_text)
+
+    # 2. Adiciona <br><br> depois de dois pontos seguidos por espaço, como títulos
+    formatted = re.sub(r"(:)( )", r":<br><br>", formatted)
+
+    # 3. Adiciona <br><br> antes de listas numeradas (ex: "1. ")
+    formatted = re.sub(r"(?<!\d)(\d\.\s)", r"<br><br>\1", formatted)
+
+    # 4. Espaçamento entre parágrafos longos (heurística: ponto final seguido de espaço + maiúscula)
+    formatted = re.sub(r"(\.)(\s)([A-Z])", r".<br><br>\3", formatted)
+
+    return formatted
