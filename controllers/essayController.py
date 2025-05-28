@@ -17,7 +17,13 @@ async def read_essay(image: UploadFile = File(...)):
     if not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="O arquivo enviado não é uma imagem.")
     image_bytes = await image.read()
-    text = corrector.extract_text_from_image(image_bytes)
+    
+    try:
+        text = corrector.extract_text_from_image(image_bytes)
+    except Exception as e:
+        print(f"Erro ao extrair texto da imagem: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erro ao processar a imagem com o OCR")
+    
     text = corrector.correct_text_with_gpt(text)
     return {
         "message": "Imagem processada com sucesso!",
