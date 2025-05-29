@@ -360,13 +360,14 @@ class ENEMCorrector:
     def correct_redacao(self, text:str) -> Dict:  
         print(self.tema)
         print(text)
-        print("✍️ Corrigindo erros do OCR...")
-        clean_text = self.correct_text_with_gpt(text)
+
+        #print("✍️ Corrigindo erros do OCR...")
+        #clean_text = self.correct_text_with_gpt(text)
         
         print("📊 Avaliando competências...")
         results = {}
         for competencia in range(1, 6):
-            results[competencia] = self.evaluate_competence(competencia_num=competencia, text=clean_text, tema=self.tema)
+            results[competencia] = self.evaluate_competence(competencia_num=competencia, text=text, tema=self.tema)
 
         print("📊 Avaliando Fuga de tema...")
         # Verificação especial para fuga ao tema
