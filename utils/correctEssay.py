@@ -318,6 +318,9 @@ class ENEMCorrector:
         
         Retorne o texto em português.
         Retorne apenas o feedback, diretamente, sem nenhum outro texto adicional ou saudação.
+        
+        FORMATO DO RETORNO:
+        Divida o texto retornado em tags HTML, de forma que possa ser renderizado no frontend.
         """
         
         response = client.chat.completions.create(

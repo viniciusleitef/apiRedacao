@@ -61,7 +61,7 @@ async def correct_essay(data: EssayRequest):
             comentario.append("Sugestões: " + ", ".join(comp['sugestoes']))
         comentarios[f'competencia_{i}'] = " | ".join(comentario)
     nota_final = response['pontuacao_total']
-    feedback_geral = format_feedback_text(response['feedback_geral'])
+    feedback_geral = response['feedback_geral']
     print(feedback_geral)
     return {
         "nota_final": nota_final,
@@ -71,17 +71,17 @@ async def correct_essay(data: EssayRequest):
     }
 
 
-def format_feedback_text(raw_text: str) -> str:
-    # 1. Negrito: **texto** → <strong>texto</strong>
-    formatted = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", raw_text)
+# def format_feedback_text(raw_text: str) -> str:
+#     # 1. Negrito: **texto** → <strong>texto</strong>
+#     formatted = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", raw_text)
 
-    # 2. Adiciona <br><br> depois de dois pontos seguidos por espaço, como títulos
-    formatted = re.sub(r"(:)( )", r":<br><br>", formatted)
+#     # 2. Adiciona <br><br> depois de dois pontos seguidos por espaço, como títulos
+#     formatted = re.sub(r"(:)( )", r":<br><br>", formatted)
 
-    # 3. Adiciona <br><br> antes de listas numeradas (ex: "1. ")
-    formatted = re.sub(r"(?<!\d)(\d\.\s)", r"<br><br>\1", formatted)
+#     # 3. Adiciona <br><br> antes de listas numeradas (ex: "1. ")
+#     formatted = re.sub(r"(?<!\d)(\d\.\s)", r"<br><br>\1", formatted)
 
-    # 4. Espaçamento entre parágrafos longos (heurística: ponto final seguido de espaço + maiúscula)
-    formatted = re.sub(r"(\.)(\s)([A-Z])", r".<br><br>\3", formatted)
+#     # 4. Espaçamento entre parágrafos longos (heurística: ponto final seguido de espaço + maiúscula)
+#     formatted = re.sub(r"(\.)(\s)([A-Z])", r".<br><br>\3", formatted)
 
-    return formatted
+#     return formatted
