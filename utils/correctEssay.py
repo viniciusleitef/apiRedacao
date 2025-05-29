@@ -4,13 +4,13 @@ from typing import Dict, List, TypedDict
 import os
 import json
 from dotenv import load_dotenv
+from crewai import Agent, Task, Crew, Process
 from pathlib import Path
 from utils.prompts import comp_1, comp_2, comp_3, comp_4, comp_5
 
 load_dotenv()
 
 # Configurações de API
-print(os.getenv("GOOGLE_VISION_AUTH_PATH"))
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_VISION_AUTH_PATH")
 gpt_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=gpt_key)
@@ -44,12 +44,15 @@ class ENEMCorrector:
             Com base nas seguintes avaliações:
             {avaliacoes}
             
-            Sugira para cada competência com nota abaixo de 160:
+            Sugira para cada competência com nota abaixo de 200:
             1. 2 referências bibliográficas específicas
             2. 1 material didático complementar
             3. 1 exercício prático
             
             Além disso, sugira 3 livros, 3 filmes e 3 músicas que se relacionam com o tema da redação para que o estudante possa explorar mais sobre o tema socioculturalmente.
+            Coloque essa sugestão na chave "repertorio_sociocultural" do JSON.
+            
+            Atenção: Não é preciso adicionar essas sugestões para todas as competências, apenas para as que estão abaixo de 200 pontos.
             
             Formato JSON (exato):
             {{
@@ -59,7 +62,16 @@ class ENEMCorrector:
                         "material": "Material sugerido",
                         "exercicio": "Exercício específico"
                     }},
+                    "2": {{
+                        ...
+                    }},
                     "3": {{
+                        ...
+                    }},
+                    "4": {{
+                        ...
+                    }},
+                    "5": {{
                         ...
                     }}
                 }},
@@ -127,10 +139,10 @@ class ENEMCorrector:
                 'aspectos_avaliados': "Uso de elementos coesivos; Conectivos interparágrafos(entre parágrafos); Conectivos intraparágrafos(dentro do parágrafo); Variedade de conectores",
                 'detalhamento_competencia': comp_4.prompt(),
                 'criteria': {
-                    200: "Resenha expressiva de elementos coesivos intraparágrafos e interparágrafos E raras ou ausentes repetições E sem inadequação. Presença de, no mínimo, 2 conectivos interparágrafos ao longo de todo o texto e, no mínimo, 2 conectivos intraparágrafos em cada parágrafo.",
-                    160: "Presença constante de elementos coesivos intraparágrafos e interparágrafos E/OU poucas repetições E/OU poucas inadequações.", # Pelo menos 1 inter e 2 intraparágrafo por parágrafo.
-                    120: "Presença regular de elementos coesivos intraparágrafos e/ou interparágrafos E/OU algumas repetições E/OU algumas inadequações.",
-                    80: "Presença pontual de elementos coesivos intraparágrafos e/ou interparágrafos E/OU muitas repetições E/OU muitas inadequações.",
+                    200: "Resenha expressiva de elementos coesivos intraparágrafos e interparágrafos E raras ou ausentes repetições E sem inadequação. Presença de, no mínimo, 2 conectivos interparágrafos e 8 conectivos intraparágrafos ao longo de todo o texto.",
+                    160: "Presença constante de elementos coesivos intraparágrafos e interparágrafos E/OU poucas repetições E/OU poucas inadequações. Presença de, no mínimo, 1 conectivo interparágrafo e 6 conectivos intraparágrafos ao longo de todo o texto.",
+                    120: "Presença regular de elementos coesivos intraparágrafos e/ou interparágrafos E/OU algumas repetições E/OU algumas inadequações. Presença de, no mínimo, 4 conectivos intraparágrafos ao longo de todo o texto.",
+                    80: "Presença pontual de elementos coesivos intraparágrafos e/ou interparágrafos E/OU muitas repetições E/OU muitas inadequações. Presença de, no mínimo, 2 conectivos intraparágrafos ao longo de todo o texto.",
                     40: "Presença rara de elementos coesivos intraparágrafos e/ou interparágrafos E/OU excessivas repetições E/OU excessivas inadequações.",
                     0: "Ausência de articulação: palavras e/ou períodos desconexos ao longo de todo o texto."
                 },
@@ -224,16 +236,13 @@ class ENEMCorrector:
         Aspectos avaliados:
         {config['aspectos_avaliados']}
         
-        Critérios:
-        {self._format_criteria(config['criteria'])}
-        
         Detalhamento da competência:
         {config['detalhamento_competencia']}
         
-        - A pontuação deve estar entre 0 e 1000.
+        Critérios:
+        {self._format_criteria(config['criteria'])}
         
-        - Lembre-se que 1000 pontos em uma redação do ENEM é bastante incomum, então verifique se a pontuação que você deu é realista, mas não precisa reduzir a pontuação só para que não seja 1000.
-        
+        - A pontuação deve estar entre 0 e 200.        
         - Sempre responda em português.
         
         Texto para avaliação:
@@ -295,7 +304,9 @@ class ENEMCorrector:
     def generate_final_feedback(self, results: Dict[int, CompetenciaResult]) -> str:
         """Gera feedback geral consolidado"""
         prompt = f"""
-        Com base nestes resultados parciais:
+        Contexto: Você é um professor de redação falando com um aluno.
+        
+        Com base nestes resultados parciais da redação:
         {json.dumps(results, indent=2)}
         
         Gere um feedback final para o aluno contendo:
@@ -304,11 +315,14 @@ class ENEMCorrector:
         3. 3 principais áreas para melhoria
         4. 3 recomendações gerais para próxima redação
         
-        Seja detalhado, pedagógico e encorajador.
+        Seja detalhado, pedagógico e encorajador. 
+        
+        Retorne o texto em português.
+        Retorne apenas o feedback, diretamente, sem nenhum outro texto adicional ou saudação.
         """
         
         response = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4.1-2025-04-14", # gpt-4-turbo-preview
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5
         )
@@ -319,15 +333,21 @@ class ENEMCorrector:
         # Filtra competências com nota abaixo de 160
         weak_competences = {
             k: v for k, v in results.items() 
-            if v['pontuacao'] < 160
+            if v['pontuacao'] < 200
         }
+        
+        if not weak_competences:
+            return {
+                "competencias": {},
+                "referencial_teorico": {}
+            }
         
         prompt = self.theory_agent['prompt_template'].format(
             avaliacoes=json.dumps(weak_competences, indent=2)
         )
         
         response = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4.1-2025-04-14", # gpt-4-turbo-preview
             messages=[{"role": "user", "content": prompt}],
             temperature=0.4,
             response_format={"type": "json_object"}
@@ -335,7 +355,7 @@ class ENEMCorrector:
         
         return json.loads(response.choices[0].message.content)
     
-    def correct_redacao(self, text:str, ) -> Dict:  
+    def correct_redacao(self, text:str) -> Dict:  
         print(self.tema)
         print(text)
         print("✍️ Corrigindo erros do OCR...")
