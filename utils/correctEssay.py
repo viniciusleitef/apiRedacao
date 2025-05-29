@@ -4,7 +4,6 @@ from typing import Dict, List, TypedDict
 import os
 import json
 from dotenv import load_dotenv
-from crewai import Agent, Task, Crew, Process
 from pathlib import Path
 from utils.prompts import comp_1, comp_2, comp_3, comp_4, comp_5
 
