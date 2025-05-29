@@ -11,6 +11,7 @@ INSTRUÇÕES:
   * Meio/Modo – Como será feito? Exemplo: "Por meio da criação de secretarias especializadas"
   * Finalidade – Para quê? Exemplo: "Para conscientizar a população"
   * Detalhamento – Adição de informações mais precisas e completas a um dos elementos da proposta de intervenção.
+Caso nenhum dos elementos da proposta de intervenção esteja presente, pontue 0 na competência.
 
 ATENÇÃO:
 - Basta que o estudante apresente uma ocorrência de cada elemento da proposta (agente, ação, meio, finalidade e detalhamento); não é preciso repetir nenhum deles.
@@ -43,4 +44,3 @@ Exemplos de detalhamento:
     return prompt
 
 # Explicar o que é considerado um elemento válido.
-# Explicar melhor o que é o detalhamento (todos menos ação).
