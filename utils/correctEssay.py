@@ -3,6 +3,7 @@ from google.cloud import vision
 from typing import Dict, List, TypedDict
 import os
 import json
+import base64
 from dotenv import load_dotenv
 from pathlib import Path
 from utils.prompts import comp_1, comp_2, comp_3, comp_4, comp_5
@@ -162,6 +163,54 @@ class ENEMCorrector:
                 },
             }
         }
+        
+    def format_text_with_image(self, image_binary_content: bytes, ocr_text: str) -> str:
+        """
+        Formata um texto OCR usando uma imagem como referência visual para tabulação,
+        parágrafos e quebras de linha, sem alterar o conteúdo do texto.
+
+        Args:
+            image_binary_content: Conteúdo binário da imagem da redação.
+            ocr_text: O texto extraído da redação via OCR.
+
+        Returns:
+            O texto OCR formatado de acordo com a estrutura visual da imagem.
+        """
+
+        # Codifica a imagem para base64 para envio à API da OpenAI
+        base64_image = base64.b64encode(image_binary_content).decode("utf-8")
+
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",  # Ou gpt-4-turbo-with-vision
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "Você é um assistente de formatação de texto. Sua tarefa é pegar um texto fornecido e formatá-lo EXATAMENTE de acordo com a estrutura visual de uma imagem também fornecida. Mantenha as quebras de linha, parágrafos, tabulações e espaçamentos como aparecem na imagem. NÃO adicione, remova ou modifique UMA ÚNICA PALAVRA do texto. Apenas ajuste a formatação (linhas, parágrafos, tabulações). Caso não seja possível identificar a formatação na imagem, retorne o texto original.",
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": f"Por favor, formate o seguinte texto OCR com base na imagem que estou fornecendo. NÃO mude nenhuma palavra, apenas a formatação (quebras de linha, parágrafos, tabulações):\n\n```\n{ocr_text}\n```\n\nUse a imagem como guia visual precisa para a formatação da redação.",
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}",
+                                    "detail": "high",  # 'low' para menor custo/velocidade, 'high' para maior precisão
+                                },
+                            },
+                        ],
+                    },
+                ],
+                temperature=0,  # Mais determinístico
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Ocorreu um erro ao chamar a API da OpenAI: {e}")
+            return f"Erro na formatação: {e}"
 
     def extract_text_from_image(self, image_bytes: bytes) -> str:
         """Extrai texto de imagem usando Google Vision OCR a partir de bytes"""
