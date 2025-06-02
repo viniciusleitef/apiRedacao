@@ -238,27 +238,26 @@ class ENEMCorrector:
     def correct_text_with_gpt(self, text: str) -> str:
         """Corrige erros do OCR usando GPT-4 e remove cabeçalhos/rodapés/numeração"""
         response = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-4.1-2025-04-14", # gpt-4-turbo-preview
             messages=[{
                 "role": "system",
                 "content": """Você é um corretor especializado em reconstrução textual. Corrija erros do OCR mantendo o conteúdo original. Siga estas instruções:
                 
-    1. Corrija erros do OCR mantendo fielmente o conteúdo original da redação
-    2. Remova completamente:
+    Corrija erros do OCR mantendo fielmente o conteúdo original da redação
+    1. Remova completamente:
     - Cabeçalhos (qualquer texto no topo da página)
     - Rodapés (qualquer texto no final da página)
     - Numeração de linhas ou páginas
-    - Marcas de identificação do aluno
     - Qualquer texto que não faça parte do corpo da redação
-    3. Mantenha todos os elementos textuais da redação:
+    2. Mantenha todos os elementos textuais da redação:
     - Título (se houver)
     - Parágrafos completos
     - Pontuação original
     - Estrutura do texto
-    4. Se o texto já estiver limpo, apenas corrija os erros de OCR sem modificar a estrutura
+    3. Se o texto já estiver limpo, apenas corrija os erros de OCR sem modificar a estrutura
 
     Retorne APENAS o texto da redação corrigido e limpo, sem comentários adicionais."""
-            }, {
+            },{
                 "role": "user",
                 "content": f"Corrija este texto extraído por OCR mantendo o conteúdo original:\n\n{text}"
             }],
