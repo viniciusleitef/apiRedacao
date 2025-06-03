@@ -42,8 +42,10 @@ async def read_essay(image: UploadFile = File(...)):
         print(f"Erro ao extrair texto da imagem: {str(e)}")
         raise HTTPException(status_code=500, detail="Erro ao processar a imagem com o OCR")
     
-    text = corrector.correct_text_with_gpt(text)
-    return text
+    clean_text = corrector.correct_text_with_gpt(text)
+    # structured_text = corrector.format_text_with_image(image_binary_content=image_bytes, ocr_text=clean_text)
+
+    return clean_text
 
 async def correct_essay(db, data: EssayRequest, file: UploadFile = File(...)):
     imageHash = None
