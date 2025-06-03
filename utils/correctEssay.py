@@ -182,11 +182,11 @@ class ENEMCorrector:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4o-2024-08-06",  # Ou gpt-4-turbo-with-vision
+                model="gpt-4o-2024-08-06",  # Ou gpt-4-turbo-2024-04-09
                 messages=[
                     {
                         "role": "system",
-                        "content": "Você é um assistente de formatação de texto. Sua tarefa é pegar um texto fornecido e formatá-lo EXATAMENTE de acordo com a estrutura visual de uma imagem também fornecida. Mantenha as quebras de linha, parágrafos, tabulações e espaçamentos como aparecem na imagem. NÃO adicione, remova ou modifique UMA ÚNICA PALAVRA do texto. Apenas ajuste a formatação (linhas, parágrafos, tabulações). Se não for possível identificar a formatação na imagem ou aconteça algum outro erro, retorne o texto original, sem comentários adicionais. Você não deve dar nenhum comentário sobre o texto, apenas o texto formatado.",
+                        "content": "Você é um assistente de formatação de texto. Sua tarefa é pegar um texto fornecido e formatá-lo EXATAMENTE de acordo com a estrutura visual de uma imagem também fornecida. Mantenha as quebras de linha, parágrafos, tabulações e espaçamentos como aparecem na imagem. NÃO adicione, remova ou modifique UMA ÚNICA PALAVRA do texto. Apenas ajuste a formatação (linhas, parágrafos, tabulações). Se não for possível identificar a formatação na imagem ou aconteça algum outro erro, retorne o texto original, sem comentários adicionais. Você não deve dar nenhum comentário sobre o texto, apenas o texto formatado. NÃO retorne nenhum texto alternativo, como: \"I'm sorry, I can't assist with that.\", apenas o texto formatado.",
                     },
                     {
                         "role": "user",
