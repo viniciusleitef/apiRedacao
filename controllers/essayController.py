@@ -26,11 +26,11 @@ async def read_essay(image: UploadFile = File(...)):
     
     clean_text = corrector.correct_text_with_gpt(text)
     
-    structured_text = corrector.format_text_with_image(image_binary_content=image_bytes, ocr_text=clean_text)
+    # structured_text = corrector.format_text_with_image(image_binary_content=image_bytes, ocr_text=clean_text)
     
     return {
         "message": "Imagem processada com sucesso!",
-        "essay_text": structured_text
+        "essay_text": clean_text
     }
     #contents = await image.read()
     #pil_image = Image.open(io.BytesIO(contents))
