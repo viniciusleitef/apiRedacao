@@ -164,7 +164,7 @@ class ENEMCorrector:
             }
         }
         
-    def format_text_with_image(image_binary_content: bytes, ocr_text: str) -> str:
+    def format_text_with_image(self, image_binary_content: bytes, ocr_text: str) -> str:
         """
         Formata um texto OCR usando uma imagem como referência visual para tabulação,
         parágrafos e quebras de linha, sem alterar o conteúdo do texto.
