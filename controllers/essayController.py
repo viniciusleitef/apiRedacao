@@ -43,7 +43,10 @@ async def read_essay(image: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="Erro ao processar a imagem com o OCR")
     
     clean_text = corrector.correct_text_with_gpt(text)
-    # structured_text = corrector.format_text_with_image(image_binary_content=image_bytes, ocr_text=clean_text)
+    structured_text = corrector.format_text_with_image(image_binary_content=image_bytes, ocr_text=clean_text)
+    
+    if structured_text == "I'm sorry, I can't assist with that.":
+        structured_text = clean_text
 
     return clean_text
 
