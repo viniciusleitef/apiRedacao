@@ -11,3 +11,5 @@ python-multipart
 dotenv
 google-cloud-vision
 openai
+sqlalchemy
+psycopg2

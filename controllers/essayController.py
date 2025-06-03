@@ -1,17 +1,35 @@
 from fastapi import HTTPException, UploadFile, File
-from PIL import Image
+from sqlalchemy.orm import Session
 import io
 import sys
 import os
-import random
-import numpy as np
-import re
+import hashlib
+
+from models.model import Redacao
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from utils.correctEssay import ENEMCorrector
 from schemas.essay import EssayRequest
 
 corrector = ENEMCorrector('Tema geral, qualquer tema')
+
+async def get_essay_by_hash_database(db, hash: str):
+    return db.query(Redacao).filter(Redacao.hash_imagem == hash).first()
+    
+
+async def create_essay_database(db: Session, nota_final: int, competencias: dict, comentarios: dict, imageHash: str, feedback_geral: str | None = None):
+    nova_redacao = Redacao(
+        hash_imagem=imageHash,
+        nota_final=nota_final,
+        competencias=competencias,
+        comentarios=comentarios,
+        feedback_geral=feedback_geral
+    )
+    
+    db.add(nova_redacao)
+    db.commit()
+    db.refresh(nova_redacao)  
+    return nova_redacao
 
 async def read_essay(image: UploadFile = File(...)):
     if not image.content_type.startswith("image/"):
@@ -25,26 +43,21 @@ async def read_essay(image: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="Erro ao processar a imagem com o OCR")
     
     text = corrector.correct_text_with_gpt(text)
-    return {
-        "message": "Imagem processada com sucesso!",
-        "essay_text": text
-    }
-    #contents = await image.read()
-    #pil_image = Image.open(io.BytesIO(contents))
-    #image_np = np.array(pil_image)
-    ##essay_text = ler_arquivo_redacao_mem(pil_image)
-    #processor.process_image(image_np)
-    #text = processor.get_full_text()
-    #print(text['texto_completo'])
-    
-    #return {
-    #    "message": "Imagem processada com sucesso!",
-    #    "essay_text": text['texto_completo']
-    #}
+    return text
 
-async def correct_essay(data: EssayRequest):
-    corrector.tema = data.essay_theme
-    response = corrector.correct_redacao(data.essay_text)
+async def correct_essay(db, data: EssayRequest, file: UploadFile = File(...)):
+    imageHash = None
+    text = data['essay_text']
+    if file:
+        imageHash = await hash_file(file)
+        essay = await get_essay_by_hash_database(db, imageHash)
+        if essay:
+            return await redacao_to_dict(essay)
+        text = await read_essay(file)
+        
+    print(text)
+    corrector.tema = data['essay_theme'] # Definindo o tema da redação
+    response = corrector.correct_redacao(text)                               # Corrigindo a redação
     # Montar o dicionário no formato CorrecaoRedacao
     competencias = {}
     comentarios = {}
@@ -62,26 +75,31 @@ async def correct_essay(data: EssayRequest):
         comentarios[f'competencia_{i}'] = " | ".join(comentario)
     nota_final = response['pontuacao_total']
     feedback_geral = response['feedback_geral']
-    print(feedback_geral)
+    
+    if file:
+        await create_essay_database(db, nota_final, competencias, comentarios, imageHash, feedback_geral)
+    
     return {
         "nota_final": nota_final,
         "competencias": competencias,
         "comentarios": comentarios,
         "feedback_geral": feedback_geral
     }
+    
+    
+async def hash_file(upload_file: UploadFile) -> str:
+    file_content = await upload_file.read()
+    file_hash = hashlib.sha256(file_content).hexdigest()
+    await upload_file.seek(0)
+    return file_hash
+
+async def redacao_to_dict(redacao: Redacao):
+    return {
+        "hash_imagem": redacao.hash_imagem,
+        "nota_final": redacao.nota_final,
+        "competencias": redacao.competencias,
+        "comentarios": redacao.comentarios,
+        "feedback_geral": redacao.feedback_geral,
+    }
 
 
-# def format_feedback_text(raw_text: str) -> str:
-#     # 1. Negrito: **texto** → <strong>texto</strong>
-#     formatted = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", raw_text)
-
-#     # 2. Adiciona <br><br> depois de dois pontos seguidos por espaço, como títulos
-#     formatted = re.sub(r"(:)( )", r":<br><br>", formatted)
-
-#     # 3. Adiciona <br><br> antes de listas numeradas (ex: "1. ")
-#     formatted = re.sub(r"(?<!\d)(\d\.\s)", r"<br><br>\1", formatted)
-
-#     # 4. Espaçamento entre parágrafos longos (heurística: ponto final seguido de espaço + maiúscula)
-#     formatted = re.sub(r"(\.)(\s)([A-Z])", r".<br><br>\3", formatted)
-
-#     return formatted
