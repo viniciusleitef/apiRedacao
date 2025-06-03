@@ -164,7 +164,7 @@ class ENEMCorrector:
             }
         }
         
-    def format_text_with_image(self, image_binary_content: bytes, ocr_text: str) -> str:
+    def format_text_with_image(image_binary_content: bytes, ocr_text: str) -> str:
         """
         Formata um texto OCR usando uma imagem como referência visual para tabulação,
         parágrafos e quebras de linha, sem alterar o conteúdo do texto.
@@ -182,18 +182,18 @@ class ENEMCorrector:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4o",  # Ou gpt-4-turbo-with-vision
+                model="gpt-4o-2024-08-06",  # Ou gpt-4-turbo-with-vision
                 messages=[
                     {
                         "role": "system",
-                        "content": "Você é um assistente de formatação de texto. Sua tarefa é pegar um texto fornecido e formatá-lo EXATAMENTE de acordo com a estrutura visual de uma imagem também fornecida. Mantenha as quebras de linha, parágrafos, tabulações e espaçamentos como aparecem na imagem. NÃO adicione, remova ou modifique UMA ÚNICA PALAVRA do texto. Apenas ajuste a formatação (linhas, parágrafos, tabulações). Caso não seja possível identificar a formatação na imagem, retorne o texto original.",
+                        "content": "Você é um assistente de formatação de texto. Sua tarefa é pegar um texto fornecido e formatá-lo EXATAMENTE de acordo com a estrutura visual de uma imagem também fornecida. Mantenha as quebras de linha, parágrafos, tabulações e espaçamentos como aparecem na imagem. NÃO adicione, remova ou modifique UMA ÚNICA PALAVRA do texto. Apenas ajuste a formatação (linhas, parágrafos, tabulações). Se não for possível identificar a formatação na imagem ou aconteça algum outro erro, retorne o texto original, sem comentários adicionais. Você não deve dar nenhum comentário sobre o texto, apenas o texto formatado.",
                     },
                     {
                         "role": "user",
                         "content": [
                             {
                                 "type": "text",
-                                "text": f"Por favor, formate o seguinte texto OCR com base na imagem que estou fornecendo. NÃO mude nenhuma palavra, apenas a formatação (quebras de linha, parágrafos, tabulações):\n\n```\n{ocr_text}\n```\n\nUse a imagem como guia visual precisa para a formatação da redação.",
+                                "text": f"Por favor, formate o seguinte texto OCR com base na imagem que estou fornecendo. NÃO mude nenhuma palavra, apenas a formatação (quebras de linha, parágrafos, tabulações). Use a imagem como guia visual precisa para a formatação do texto. \n\n\nTexto: {ocr_text}",
                             },
                             {
                                 "type": "image_url",
