@@ -17,13 +17,14 @@ async def get_essay_by_hash_database(db, hash: str):
     return db.query(Redacao).filter(Redacao.hash_imagem == hash).first()
     
 
-async def create_essay_database(db: Session, nota_final: int, competencias: dict, comentarios: dict, imageHash: str, feedback_geral: str | None = None):
+async def create_essay_database(db: Session, nota_final: int, competencias: dict, comentarios: dict, imageHash: str, text:str, feedback_geral: str | None = None):
     nova_redacao = Redacao(
         hash_imagem=imageHash,
         nota_final=nota_final,
         competencias=competencias,
         comentarios=comentarios,
-        feedback_geral=feedback_geral
+        feedback_geral=feedback_geral,
+        text = text
     )
     
     db.add(nova_redacao)
@@ -54,15 +55,15 @@ async def correct_essay(db, data: EssayRequest, file: UploadFile = File(...)):
     imageHash = None
     text = data['essay_text']
     if file:
-        imageHash = await hash_file(file)
-        essay = await get_essay_by_hash_database(db, imageHash)
+        imageHash = await hash_file(file)                                       # Gera hash da imagem
+        essay = await get_essay_by_hash_database(db, imageHash)                 # Se ja existir um hash igual no banco, retorna os dados desse hash e converte para dict
         if essay:
             return await redacao_to_dict(essay)
         text = await read_essay(file)
         
     print(text)
-    corrector.tema = data['essay_theme'] # Definindo o tema da redação
-    response = corrector.correct_redacao(text)                               # Corrigindo a redação
+    corrector.tema = data['essay_theme']                                        # Definindo o tema da redação
+    response = corrector.correct_redacao(text)                                  # Corrigindo a redação
     # Montar o dicionário no formato CorrecaoRedacao
     competencias = {}
     comentarios = {}
@@ -82,13 +83,14 @@ async def correct_essay(db, data: EssayRequest, file: UploadFile = File(...)):
     feedback_geral = response['feedback_geral']
     
     if file:
-        await create_essay_database(db, nota_final, competencias, comentarios, imageHash, feedback_geral)
+        await create_essay_database(db, nota_final, competencias, comentarios, imageHash, text, feedback_geral)
     
     return {
         "nota_final": nota_final,
         "competencias": competencias,
         "comentarios": comentarios,
-        "feedback_geral": feedback_geral
+        "feedback_geral": feedback_geral,
+        "text": text
     }
     
     
@@ -105,6 +107,7 @@ async def redacao_to_dict(redacao: Redacao):
         "competencias": redacao.competencias,
         "comentarios": redacao.comentarios,
         "feedback_geral": redacao.feedback_geral,
+        "text": redacao.text
     }
 
 

@@ -12,4 +12,5 @@ class Redacao(Base):
     competencias = Column(JSONB, nullable=False)  
     comentarios = Column(JSONB, nullable=False)   
     feedback_geral = Column(Text, nullable=True)
+    text = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
